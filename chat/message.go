@@ -80,6 +80,46 @@ type Message struct {
 	Extra     []Message `json:"extra,omitempty"`
 }
 
+type boolString bool
+
+func (bs *boolString) UnmarshalJSON(b []byte) error {
+	str := string(b)
+	if str == "\"true\"" || str == "true" {
+		*bs = true
+	} else if str == "\"false\"" || str == "false" {
+		*bs = false
+	} else {
+		return errors.New("invalid value for boolean: " + str)
+	}
+	return nil
+}
+
+// Same as Message, but type bool is boolString
+type MessageWithStringBool struct {
+	Text string `json:"text"`
+
+	Bold          boolString `json:"bold,omitempty"`          // 粗体
+	Italic        boolString `json:"italic,omitempty"`        // 斜体
+	UnderLined    boolString `json:"underlined,omitempty"`    // 下划线
+	StrikeThrough boolString `json:"strikethrough,omitempty"` // 删除线
+	Obfuscated    boolString `json:"obfuscated,omitempty"`    // 随机
+	// Font of the message, could be one of minecraft:uniform, minecraft:alt or minecraft:default
+	// This option is only valid on 1.16+, otherwise the property is ignored.
+	Font  string `json:"font,omitempty"`  // 字体
+	Color string `json:"color,omitempty"` // 颜色
+
+	// Insertion contains text to insert. Only used for messages in chat.
+	// When shift is held, clicking the component inserts the given text
+	// into the chat box at the cursor (potentially replacing selected text).
+	Insertion  string      `json:"insertion,omitempty"`
+	ClickEvent *ClickEvent `json:"clickEvent,omitempty"`
+	HoverEvent *HoverEvent `json:"hoverEvent,omitempty"`
+
+	Translate string                  `json:"translate,omitempty"`
+	With      []MessageWithStringBool `json:"with,omitempty"`
+	Extra     []MessageWithStringBool `json:"extra,omitempty"`
+}
+
 // Same as Message, but "Text" is omitempty
 type translateMsg struct {
 	Text string `json:"text,omitempty"`
@@ -332,4 +372,52 @@ func TransCtrlSeq(str string, ansi bool) (dst string, change bool) {
 		},
 	)
 	return
+}
+
+func (m *MessageWithStringBool) ToMessage() *Message {
+	return &Message{
+		Text:          m.Text,
+		Bold:          bool(m.Bold),
+		Italic:        bool(m.Italic),
+		UnderLined:    bool(m.UnderLined),
+		StrikeThrough: bool(m.StrikeThrough),
+		Obfuscated:    bool(m.Obfuscated),
+		Font:          m.Font,
+		Color:         m.Color,
+		Insertion:     m.Insertion,
+		ClickEvent:    m.ClickEvent,
+		HoverEvent:    m.HoverEvent,
+		Translate:     m.Translate,
+		With:          MessageWithStringBoolArrayToMessageBoolArray(m.With),
+		Extra:         MessageWithStringBoolArrayToMessageBoolArray(m.Extra),
+	}
+}
+
+func MessageWithStringBoolArrayToMessageBoolArray(arr []MessageWithStringBool) []Message {
+	var ret []Message
+	for _, m := range arr {
+		ret = append(ret, *m.ToMessage())
+	}
+	return ret
+}
+
+// ReadFrom decode Message in a ChatMsg packet
+func (m *MessageWithStringBool) ReadFrom(r io.Reader) (int64, error) {
+	var code pk.String
+	n, err := code.ReadFrom(r)
+	if err != nil {
+		return n, err
+	}
+	println(string(code))
+	err = json.Unmarshal([]byte(code), m)
+	return n, err
+}
+
+// WriteTo encode Message into a ChatMsg packet
+func (m MessageWithStringBool) WriteTo(w io.Writer) (int64, error) {
+	code, err := json.Marshal(m)
+	if err != nil {
+		panic(err)
+	}
+	return pk.String(code).WriteTo(w)
 }
