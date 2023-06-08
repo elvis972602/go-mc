@@ -408,7 +408,6 @@ func (m *MessageWithStringBool) ReadFrom(r io.Reader) (int64, error) {
 	if err != nil {
 		return n, err
 	}
-	println(string(code))
 	err = json.Unmarshal([]byte(code), m)
 	return n, err
 }

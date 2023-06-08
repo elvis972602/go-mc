@@ -192,7 +192,7 @@ func (m *Manager) SendCommand(cmd string) error {
 
 	err := m.c.Conn.WritePacket(pk.Marshal(
 		packetid.ServerboundChatCommand,
-		pk.String(cmd[1:]),
+		pk.String(cmd),
 		pk.Long(time.Now().UnixMilli()),
 		pk.Long(salt),
 		pk.VarInt(0), // signature
