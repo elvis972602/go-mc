@@ -38,6 +38,15 @@ func NewWorld(c *bot.Client, p *basic.Player, events EventsListener) (w *World) 
 	return
 }
 
+func (w *World) IsLoaded(pos pk.Position) bool {
+	w.ChunkLock.RLock()
+	defer w.ChunkLock.RUnlock()
+	if _, ok := w.Columns[level.ChunkPos{int32(pos.X >> 4), int32(pos.Z >> 4)}]; !ok {
+		return false
+	}
+	return true
+}
+
 func (w *World) onPlayerSpawn(pk.Packet) error {
 	// unload all chunks
 	w.Columns = make(map[level.ChunkPos]*level.Chunk)
