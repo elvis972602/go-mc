@@ -11,6 +11,8 @@ import (
 	"os"
 	"text/template"
 
+	zh_tw "github.com/Tnze/go-mc/data/lang/zh-tw"
+
 	"github.com/iancoleman/strcase"
 )
 
@@ -26,13 +28,14 @@ type ID uint32
 
 // Entity describes information about a type of entity.
 type Entity struct {
-ID          ID
-InternalID  uint32
-DisplayName string
-Name        string
-Width  float64
-Height float64
-Type     string
+ID             ID
+InternalID     uint32
+DisplayName    string
+Name           string
+TranslationKey string
+Width          float64
+Height         float64
+Type           string
 }
 
 var (
@@ -42,6 +45,7 @@ var (
 		InternalID: {{.InternalID}},
 		DisplayName: "{{.DisplayName}}",
 		Name: "{{.Name}}",
+		TranslationKey: "{{.TranslationKey}}",
 		Width: {{.Width}},
 		Height: {{.Height}},
 		Type: "{{.Type}}",
@@ -55,11 +59,12 @@ var ByID = map[ID]*Entity{ {{range .}}
 )
 
 type Entity struct {
-	ID          uint32 `json:"id"`
-	InternalID  uint32 `json:"internalId"`
-	CamelName   string `json:"-"`
-	DisplayName string `json:"displayName"`
-	Name        string `json:"name"`
+	ID             uint32 `json:"id"`
+	InternalID     uint32 `json:"internalId"`
+	CamelName      string `json:"-"`
+	DisplayName    string `json:"displayName"`
+	Name           string `json:"name"`
+	TranslationKey string `json:"-"`
 
 	Width  float64 `json:"width"`
 	Height float64 `json:"height"`
@@ -80,6 +85,9 @@ func downloadInfo() ([]*Entity, error) {
 	}
 	for _, d := range data {
 		d.CamelName = strcase.ToCamel(d.Name)
+		if _, ok := zh_tw.Map["entity.minecraft."+d.Name]; ok {
+			d.TranslationKey = "entity.minecraft." + d.Name
+		}
 	}
 	return data, nil
 }
