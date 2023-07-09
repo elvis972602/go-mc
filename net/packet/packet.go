@@ -31,7 +31,7 @@ func (p Packet) Scan(fields ...FieldDecoder) error {
 	for i, v := range fields {
 		_, err := v.ReadFrom(r)
 		if err != nil {
-			return fmt.Errorf("scanning packet field[%d] error: %w", i, err)
+			return fmt.Errorf("scanning packet field[%d] error: %w, packetID: 0x%x", i, err, p.ID)
 		}
 	}
 	return nil
