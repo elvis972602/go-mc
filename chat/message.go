@@ -58,11 +58,11 @@ const (
 type Message struct {
 	Text string `json:"text"`
 
-	Bold          bool `json:"bold,omitempty"`          // 粗体
-	Italic        bool `json:"italic,omitempty"`        // 斜体
-	UnderLined    bool `json:"underlined,omitempty"`    // 下划线
-	StrikeThrough bool `json:"strikethrough,omitempty"` // 删除线
-	Obfuscated    bool `json:"obfuscated,omitempty"`    // 随机
+	Bold          boolString `json:"bold,omitempty"`          // 粗体
+	Italic        boolString `json:"italic,omitempty"`        // 斜体
+	UnderLined    boolString `json:"underlined,omitempty"`    // 下划线
+	StrikeThrough boolString `json:"strikethrough,omitempty"` // 删除线
+	Obfuscated    boolString `json:"obfuscated,omitempty"`    // 随机
 	// Font of the message, could be one of minecraft:uniform, minecraft:alt or minecraft:default
 	// This option is only valid on 1.16+, otherwise the property is ignored.
 	Font  string `json:"font,omitempty"`  // 字体
@@ -83,52 +83,36 @@ type Message struct {
 type boolString bool
 
 func (bs *boolString) UnmarshalJSON(b []byte) error {
-	str := string(b)
-	if str == "\"true\"" || str == "true" {
+	if bytes.Equal(b, []byte("true")) {
 		*bs = true
-	} else if str == "\"false\"" || str == "false" {
+		return nil
+	} else if bytes.Equal(b, []byte("false")) {
 		*bs = false
-	} else {
-		return errors.New("invalid value for boolean: " + str)
+		return nil
 	}
-	return nil
-}
 
-// Same as Message, but type bool is boolString
-type MessageWithStringBool struct {
-	Text string `json:"text"`
-
-	Bold          boolString `json:"bold,omitempty"`          // 粗体
-	Italic        boolString `json:"italic,omitempty"`        // 斜体
-	UnderLined    boolString `json:"underlined,omitempty"`    // 下划线
-	StrikeThrough boolString `json:"strikethrough,omitempty"` // 删除线
-	Obfuscated    boolString `json:"obfuscated,omitempty"`    // 随机
-	// Font of the message, could be one of minecraft:uniform, minecraft:alt or minecraft:default
-	// This option is only valid on 1.16+, otherwise the property is ignored.
-	Font  string `json:"font,omitempty"`  // 字体
-	Color string `json:"color,omitempty"` // 颜色
-
-	// Insertion contains text to insert. Only used for messages in chat.
-	// When shift is held, clicking the component inserts the given text
-	// into the chat box at the cursor (potentially replacing selected text).
-	Insertion  string      `json:"insertion,omitempty"`
-	ClickEvent *ClickEvent `json:"clickEvent,omitempty"`
-	HoverEvent *HoverEvent `json:"hoverEvent,omitempty"`
-
-	Translate string                  `json:"translate,omitempty"`
-	With      []MessageWithStringBool `json:"with,omitempty"`
-	Extra     []MessageWithStringBool `json:"extra,omitempty"`
+	var str string
+	if err := json.Unmarshal(b, &str); err == nil {
+		if str == "true" {
+			*bs = true
+			return nil
+		} else if str == "false" {
+			*bs = false
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid value for boolString: %s", b)
 }
 
 // Same as Message, but "Text" is omitempty
 type translateMsg struct {
 	Text string `json:"text,omitempty"`
 
-	Bold          bool `json:"bold,omitempty"`
-	Italic        bool `json:"italic,omitempty"`
-	UnderLined    bool `json:"underlined,omitempty"`
-	StrikeThrough bool `json:"strikethrough,omitempty"`
-	Obfuscated    bool `json:"obfuscated,omitempty"`
+	Bold          boolString `json:"bold,omitempty"`
+	Italic        boolString `json:"italic,omitempty"`
+	UnderLined    boolString `json:"underlined,omitempty"`
+	StrikeThrough boolString `json:"strikethrough,omitempty"`
+	Obfuscated    boolString `json:"obfuscated,omitempty"`
 
 	Font  string `json:"font,omitempty"`
 	Color string `json:"color,omitempty"`
@@ -372,51 +356,4 @@ func TransCtrlSeq(str string, ansi bool) (dst string, change bool) {
 		},
 	)
 	return
-}
-
-func (m *MessageWithStringBool) ToMessage() *Message {
-	return &Message{
-		Text:          m.Text,
-		Bold:          bool(m.Bold),
-		Italic:        bool(m.Italic),
-		UnderLined:    bool(m.UnderLined),
-		StrikeThrough: bool(m.StrikeThrough),
-		Obfuscated:    bool(m.Obfuscated),
-		Font:          m.Font,
-		Color:         m.Color,
-		Insertion:     m.Insertion,
-		ClickEvent:    m.ClickEvent,
-		HoverEvent:    m.HoverEvent,
-		Translate:     m.Translate,
-		With:          MessageWithStringBoolArrayToMessageBoolArray(m.With),
-		Extra:         MessageWithStringBoolArrayToMessageBoolArray(m.Extra),
-	}
-}
-
-func MessageWithStringBoolArrayToMessageBoolArray(arr []MessageWithStringBool) []Message {
-	var ret []Message
-	for _, m := range arr {
-		ret = append(ret, *m.ToMessage())
-	}
-	return ret
-}
-
-// ReadFrom decode Message in a ChatMsg packet
-func (m *MessageWithStringBool) ReadFrom(r io.Reader) (int64, error) {
-	var code pk.String
-	n, err := code.ReadFrom(r)
-	if err != nil {
-		return n, err
-	}
-	err = json.Unmarshal([]byte(code), m)
-	return n, err
-}
-
-// WriteTo encode Message into a ChatMsg packet
-func (m MessageWithStringBool) WriteTo(w io.Writer) (int64, error) {
-	code, err := json.Marshal(m)
-	if err != nil {
-		panic(err)
-	}
-	return pk.String(code).WriteTo(w)
 }

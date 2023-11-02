@@ -10,14 +10,14 @@ type Decoration struct {
 	TranslationKey string   `nbt:"translation_key"`
 	Parameters     []string `nbt:"parameters"`
 	Style          struct {
-		Bold          bool   `nbt:"bold,omitempty"`
-		Italic        bool   `nbt:"italic,omitempty"`
-		UnderLined    bool   `nbt:"underlined,omitempty"`
-		StrikeThrough bool   `nbt:"strikethrough,omitempty"`
-		Obfuscated    bool   `nbt:"obfuscated,omitempty"`
-		Color         string `nbt:"color,omitempty"`
-		Insertion     string `nbt:"insertion,omitempty"`
-		Font          string `nbt:"font,omitempty"`
+		Bold          boolString `nbt:"bold,omitempty"`
+		Italic        boolString `nbt:"italic,omitempty"`
+		UnderLined    boolString `nbt:"underlined,omitempty"`
+		StrikeThrough boolString `nbt:"strikethrough,omitempty"`
+		Obfuscated    boolString `nbt:"obfuscated,omitempty"`
+		Color         string     `nbt:"color,omitempty"`
+		Insertion     string     `nbt:"insertion,omitempty"`
+		Font          string     `nbt:"font,omitempty"`
 	} `nbt:"style,omitempty"`
 }
 

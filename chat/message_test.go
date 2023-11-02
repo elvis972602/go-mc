@@ -26,6 +26,8 @@ var jsons = []string{
 	`"§list"`,
 
 	`{"extra":[" "],"text":""}`,
+	`{"text":"boolString", "bold":"true"}`, // boolString
+	`{"text":"boolString", "bold":true}`,   // boolString
 }
 
 var texts = []string{
@@ -42,6 +44,8 @@ var texts = []string{
 	"\033[1mist\033[0m",
 
 	" ",
+	"\x1b[1mboolString\x1b[0m",
+	"\x1b[1mboolString\x1b[0m",
 }
 
 var clearTexts = []string{
@@ -58,6 +62,8 @@ var clearTexts = []string{
 	"ist",
 
 	" ",
+	"boolString",
+	"boolString",
 }
 
 func TestMessage_String(t *testing.T) {
