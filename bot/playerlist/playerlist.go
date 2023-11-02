@@ -117,12 +117,12 @@ func (pl *PlayerList) handlePlayerInfoUpdatePacket(p pk.Packet) error {
 		}
 		// display name
 		if action.Get(5) {
-			var displayName pk.Option[chat.MessageWithStringBool, *chat.MessageWithStringBool]
+			var displayName pk.Option[chat.Message, *chat.Message]
 			if _, err := displayName.ReadFrom(r); err != nil {
 				return err
 			}
 			if displayName.Has {
-				player.DisplayName = displayName.Val.ToMessage()
+				player.DisplayName = &displayName.Val
 			} else {
 				player.DisplayName = nil
 			}
