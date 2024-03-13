@@ -54,6 +54,18 @@ func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events Event
 			F: m.handleDisguisedChat,
 		})
 	}
+	if events.SetTitleText != nil {
+		c.Events.AddListener(bot.PacketHandler{
+			Priority: 64, ID: packetid.ClientboundSetTitleText,
+			F: m.handleSetTitleText,
+		})
+	}
+	if events.SetSubtitleText != nil {
+		c.Events.AddListener(bot.PacketHandler{
+			Priority: 64, ID: packetid.ClientboundSetSubtitleText,
+			F: m.handleSetSubtitleText,
+		})
+	}
 	return m
 }
 
@@ -148,6 +160,22 @@ func (m *Manager) handleDisguisedChat(packet pk.Packet) error {
 	msg := chatType.Decorate(message, &ct.Chat)
 
 	return m.events.DisguisedChat(msg)
+}
+
+func (m *Manager) handleSetTitleText(packet pk.Packet) error {
+	var message chat.Message
+	if err := packet.Scan(&message); err != nil {
+		return err
+	}
+	return m.events.SetTitleText(message)
+}
+
+func (m *Manager) handleSetSubtitleText(packet pk.Packet) error {
+	var message chat.Message
+	if err := packet.Scan(&message); err != nil {
+		return err
+	}
+	return m.events.SetSubtitleText(message)
 }
 
 // SendMessage send chat message to server.

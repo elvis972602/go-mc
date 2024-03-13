@@ -26,4 +26,8 @@ type EventsHandler struct {
 	// DisguisedChat message used to send system chat.
 	// Now it is used to send messages from "/say" command from server console.
 	DisguisedChat func(msg chat.Message) error
+	// SetTitleText handles title text display on the client screen.
+	SetTitleText func(msg chat.Message) error
+	// SetSubtitleText handles subtitle text display on the client screen.
+	SetSubtitleText func(msg chat.Message) error
 }
