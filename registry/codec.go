@@ -6,12 +6,12 @@ import (
 )
 
 type NetworkCodec struct {
-	ChatType      Registry[ChatType]       `nbt:"minecraft:chat_type"`
-	DamageType    Registry[DamageType]     `nbt:"minecraft:damage_type"`
-	DimensionType Registry[Dimension]      `nbt:"minecraft:dimension_type"`
-	TrimMaterial  Registry[nbt.RawMessage] `nbt:"minecraft:trim_material"`
-	TrimPattern   Registry[nbt.RawMessage] `nbt:"minecraft:trim_pattern"`
-	WorldGenBiome Registry[nbt.RawMessage] `nbt:"minecraft:worldgen/biome"`
+	ChatType      Registry[ChatType]       `nbt:"chat_type"`
+	DamageType    Registry[DamageType]     `nbt:"damage_type"`
+	DimensionType Registry[Dimension]      `nbt:"dimension_type"`
+	TrimMaterial  Registry[nbt.RawMessage] `nbt:"trim_material"`
+	TrimPattern   Registry[nbt.RawMessage] `nbt:"trim_pattern"`
+	WorldGenBiome Registry[nbt.RawMessage] `nbt:"worldgen/biome"`
 }
 
 type ChatType struct {

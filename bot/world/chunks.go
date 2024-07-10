@@ -55,9 +55,9 @@ func (w *World) onPlayerSpawn(pk.Packet) error {
 
 func (w *World) handleLevelChunkWithLightPacket(packet pk.Packet) error {
 	var pos level.ChunkPos
-	_, currentDimType := w.p.WorldInfo.RegistryCodec.DimensionType.Find(w.p.DimensionType)
+	_, currentDimType := w.p.WorldInfo.RegistryCodec.DimensionType.Find(w.p.DimensionName)
 	if currentDimType == nil {
-		return errors.New("dimension type " + w.p.DimensionType + " not found")
+		return errors.New("dimension type " + w.p.DimensionName + " not found")
 	}
 	chunk := level.EmptyChunk(int(currentDimType.Height) / 16)
 	if err := packet.Scan(&pos, chunk); err != nil {
@@ -126,7 +126,10 @@ func (w *World) handleMultiBlockUpdatePacket(packet pk.Packet) error {
 	chunkX := int(pos >> 42)
 	chunkY := int(pos << 44 >> 44)
 	chunkZ := int(pos << 22 >> 42)
-	_, currentDimType := w.p.WorldInfo.RegistryCodec.DimensionType.Find(w.p.DimensionType)
+	_, currentDimType := w.p.WorldInfo.RegistryCodec.DimensionType.Find(w.p.DimensionName)
+	if currentDimType == nil {
+		return errors.New("dimension type " + w.p.DimensionName + " not found")
+	}
 	chunkY = chunkY - int(currentDimType.MinY>>4)
 
 	w.multiBlockUpdate(chunkX, chunkY, chunkZ, Blocks)
@@ -143,7 +146,10 @@ func (w *World) unaryBlockUpdate(pos pk.Position, bStateID level.BlocksState) bo
 		return false
 	}
 
-	_, currentDimType := w.p.WorldInfo.RegistryCodec.DimensionType.Find(w.p.DimensionType)
+	_, currentDimType := w.p.WorldInfo.RegistryCodec.DimensionType.Find(w.p.DimensionName)
+	if currentDimType == nil {
+		return false
+	}
 	sIdx, bIdx := (int32(pos.Y)-currentDimType.MinY)>>4, sectionIdx(pos.X&15, pos.Y&15, pos.Z&15)
 
 	c.Sections[sIdx].SetBlock(bIdx, bStateID)
