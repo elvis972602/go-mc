@@ -52,8 +52,8 @@ type Conn struct {
 func warpConn(c *net.Conn) *Conn {
 	wc := Conn{
 		Conn: c,
-		send: queue.NewChannelQueue[pk.Packet](2560),
-		recv: queue.NewChannelQueue[pk.Packet](2560),
+		send: queue.NewLinkedQueue[pk.Packet](),
+		recv: queue.NewLinkedQueue[pk.Packet](),
 		rerr: nil,
 	}
 	go func() {
