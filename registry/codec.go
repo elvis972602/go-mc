@@ -42,6 +42,7 @@ type Dimension struct {
 	InfiniteBurn       string  `nbt:"infiniburn"`
 	Effects            string  `nbt:"effects"`
 	AmbientLight       float64 `nbt:"ambient_light"`
+	CloudHeight        int32   `nbt:"cloud_height,omitempty"`
 
 	PiglinSafe                  byte           `nbt:"piglin_safe"`
 	HasRaids                    byte           `nbt:"has_raids"`

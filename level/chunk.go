@@ -285,8 +285,12 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 func (c *Chunk) ReadFrom(r io.Reader) (int64, error) {
 	var (
 		heightmaps struct {
-			MotionBlocking []uint64 `nbt:"MOTION_BLOCKING"`
-			WorldSurface   []uint64 `nbt:"WORLD_SURFACE"`
+			MotionBlocking         []uint64 `nbt:"MOTION_BLOCKING"`
+			MotionBlockingNoLeaves []uint64 `nbt:"MOTION_BLOCKING_NO_LEAVES"`
+			WorldSurface           []uint64 `nbt:"WORLD_SURFACE"`
+			WorldSurfaceWG         []uint64 `nbt:"WORLD_SURFACE_WG"`
+			OceanFloor             []uint64 `nbt:"OCEAN_FLOOR"`
+			OceanFloorWG           []uint64 `nbt:"OCEAN_FLOOR_WG"`
 		}
 		data pk.ByteArray
 	)
@@ -307,8 +311,15 @@ func (c *Chunk) ReadFrom(r io.Reader) (int64, error) {
 	}
 
 	bitsForHeight := bits.Len( /* chunk height in blocks */ uint(len(c.Sections))*16 + 1)
-	c.HeightMaps.MotionBlocking = NewBitStorage(bitsForHeight, 16*16, heightmaps.MotionBlocking)
-	c.HeightMaps.WorldSurface = NewBitStorage(bitsForHeight, 16*16, heightmaps.WorldSurface)
+	if heightmaps.MotionBlocking != nil {
+		c.HeightMaps.MotionBlocking = NewBitStorage(bitsForHeight, 16*16, heightmaps.MotionBlocking)
+	}
+	if heightmaps.MotionBlockingNoLeaves != nil {
+		c.HeightMaps.MotionBlockingNoLeaves = NewBitStorage(bitsForHeight, 16*16, heightmaps.MotionBlockingNoLeaves)
+	}
+	if heightmaps.WorldSurface != nil {
+		c.HeightMaps.WorldSurface = NewBitStorage(bitsForHeight, 16*16, heightmaps.WorldSurface)
+	}
 
 	err = c.PutData(data)
 	return n, err
