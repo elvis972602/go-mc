@@ -12,6 +12,9 @@ type NetworkCodec struct {
 	TrimMaterial  Registry[nbt.RawMessage] `nbt:"trim_material"`
 	TrimPattern   Registry[nbt.RawMessage] `nbt:"trim_pattern"`
 	WorldGenBiome Registry[nbt.RawMessage] `nbt:"worldgen/biome"`
+
+	ZombieNautilusVariant Registry[nbt.RawMessage] `nbt:"zombie_nautilus_variant"`
+	Timeline              Registry[nbt.RawMessage] `nbt:"timeline"`
 }
 
 type ChatType struct {
@@ -42,10 +45,17 @@ type Dimension struct {
 	InfiniteBurn       string  `nbt:"infiniburn"`
 	Effects            string  `nbt:"effects"`
 	AmbientLight       float64 `nbt:"ambient_light"`
-	CloudHeight        int32   `nbt:"cloud_height,omitempty"`
 
-	PiglinSafe                  byte           `nbt:"piglin_safe"`
-	HasRaids                    byte           `nbt:"has_raids"`
+	PiglinSafe byte `nbt:"piglin_safe"`
+	HasRaids   byte `nbt:"has_raids"`
+
 	MonsterSpawnLightLevel      nbt.RawMessage `nbt:"monster_spawn_light_level"` // Tag_Int or {type:"minecraft:uniform", value:{min_inclusive: Tag_Int, max_inclusive: Tag_Int}}
 	MonsterSpawnBlockLightLimit int32          `nbt:"monster_spawn_block_light_limit"`
+
+	CloudHeight   float32        `nbt:"cloud_height,omitempty"`
+	Timelines     nbt.RawMessage `nbt:"timelines,omitempty"`
+	Attributes    nbt.RawMessage `nbt:"attributes,omitempty"`
+	SkyBox        nbt.RawMessage `nbt:"skybox,omitempty"`
+	HasFixedTime  nbt.RawMessage `nbt:"has_fixed_time,omitempty"`
+	CardinalLight nbt.RawMessage `nbt:"cardinal_light,omitempty"`
 }
